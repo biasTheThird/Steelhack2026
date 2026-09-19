@@ -29,7 +29,7 @@ public class TargetMaskAssigner {
     public static final int FOREGROUND_THRESHOLD = 400;
     // Keep the interactive demo responsive: a full 400x400 all-pairs match is far too
     // expensive for the Swing window to open and animate smoothly.
-    public static final int MAX_ASSIGNED_PIXELS = 160000;
+    public static final int MAX_ASSIGNED_PIXELS = 16000;
 
     /**
      * Reads a target mask from disk and returns all foreground positions as Pixel
