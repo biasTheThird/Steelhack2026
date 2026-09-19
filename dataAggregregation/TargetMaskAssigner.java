@@ -140,10 +140,9 @@ public class TargetMaskAssigner {
 
         List<Pixel> maskTargets = sampleTargetPositions(extractForegroundPoints(mask), sourcePixels.size());
         for (int i = 0; i < sourcePixels.size(); i++) {
-            Pixel pixel = sourcePixels.get(i);
-            Pixel targetPixel = maskTargets.get(i % maskTargets.size());
-            pixel.setTarg(targetPixel.xStart, targetPixel.yStart);
-        }
+    Pixel p = sourcePixels.get(i);
+    System.out.println("pixel " + i + " -> targ = (" + p.xTarg + ", " + p.yTarg + ")");
+}
     }
 
     /**
