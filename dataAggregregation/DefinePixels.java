@@ -1,33 +1,24 @@
 package dataAggregregation;
 
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
-import javax.imageio.ImageIO;
 
 import src.Pixel;
-import static src.Util.*;
 
 public class DefinePixels {
 
     private BufferedImage img;
-    public static int height;
-    public static int width;
+    private int height;
+    private int width;
+    public static ArrayList<Pixel> pixels = new ArrayList<>();
 
-    public DefinePixels(String path) {
-        try {
-            img = ImageIO.read(new File(path));
-        } catch (IOException e) {
-            System.err.println("Error: Could not find or read '" + path + "'.");
-            e.printStackTrace();
-        }
-
+    public DefinePixels(BufferedImage img) {
         if (img == null) {
-            System.err.println("Error: The image file format is not supported, or file was not found.");
+            System.err.println("Error: null image passed to DefinePixels.");
             return; // bail out before touching width/height/pixels
         }
 
+        this.img = img;
         height = img.getHeight();
         width = img.getWidth();
         extractPixels();
