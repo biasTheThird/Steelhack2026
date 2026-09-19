@@ -1,7 +1,6 @@
 package src;
 
 import javax.swing.*;
-import javax.swing.event.MouseInputAdapter;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
@@ -23,23 +22,12 @@ public class Grapher {
     private int[] pixel;
 
     //sets default graphing values
-    private Point lowerBounds = new Point(-10, -10);
-    private Point upperBounds = new Point(10, 10);
+    private Point lowerBounds = new Point(0, 0);
+    private Point upperBounds = new Point(900, 900);
     private Dimension winDims = new Dimension(900, 900);
     private int backgroundColor = Util.BLACK;
-    private int xAxisColor = Util.WHITE;
-    private int xAxisSize = 1;
-    private boolean xAxisVisible = true;
-    private int yAxisColor = Util.WHITE;
-    private int yAxisSize = 1;
-    private boolean yAxisVisible = true;
     private int pointColor = Util.RED;
-    private int pointSize = 2;
-    private boolean connectPoints = false;
-
-    //sets other default values
-    private double zoomOutSpeed = 1.0625;
-    private double zoomInSpeed = 1.0/zoomOutSpeed;
+    private int pointSize = 1;
 
     private ArrayList<Point[]> dataList = new ArrayList<>(0);
     private ArrayList<int[]> dataColorList = new ArrayList<>(0);
@@ -69,6 +57,7 @@ public class Grapher {
     private Grapher(Dimension winDims, ArrayList<Point[]> dataList,
                    ArrayList<int[]> dataColorList, ArrayList<int[]> dataSizeList) {
         this.winDims = winDims;
+        this.upperBounds =  new Point(winDims.width, winDims.height);
         this.dataList = dataList;
         this.dataColorList = dataColorList;
         this.dataSizeList = dataSizeList;
@@ -136,60 +125,6 @@ public class Grapher {
         updateVisual();
     }
 
-    public boolean isxAxisVisible() {
-        return xAxisVisible;
-    }
-
-    public void setxAxisVisible(boolean xAxisVisible) {
-        this.xAxisVisible = xAxisVisible;
-        updateVisual();
-    }
-
-    public int getyAxisSize() {
-        return yAxisSize;
-    }
-
-    public void setyAxisSize(int yAxisSize) {
-        this.yAxisSize = yAxisSize;
-        updateVisual();
-    }
-
-    public int getyAxisColor() {
-        return yAxisColor;
-    }
-
-    public void setyAxisColor(int yAxisColor) {
-        this.yAxisColor = yAxisColor;
-        updateVisual();
-    }
-
-    public boolean isyAxisVisible() {
-        return yAxisVisible;
-    }
-
-    public void setyAxisVisible(boolean yAxisVisible) {
-        this.yAxisVisible = yAxisVisible;
-        updateVisual();
-    }
-
-    public int getxAxisSize() {
-        return xAxisSize;
-    }
-
-    public void setxAxisSize(int xAxisSize) {
-        this.xAxisSize = xAxisSize;
-        updateVisual();
-    }
-
-    public int getxAxisColor() {
-        return xAxisColor;
-    }
-
-    public void setxAxisColor(int xAxisColor) {
-        this.xAxisColor = xAxisColor;
-        updateVisual();
-    }
-
     public int getBackgroundColor() {
         return backgroundColor;
     }
@@ -197,33 +132,6 @@ public class Grapher {
     public void setBackgroundColor(int backgroundColor) {
         this.backgroundColor = backgroundColor;
         updateVisual();
-    }
-
-    public boolean isConnectPoints() {
-        return connectPoints;
-    }
-
-    public void setConnectPoints(boolean connectPoints) {
-        this.connectPoints = connectPoints;
-        updateVisual();
-    }
-
-    public double getZoomOutSpeed() {
-        return zoomOutSpeed;
-    }
-
-    public void setZoomOutSpeed(double zoomOutSpeed) {
-        this.zoomOutSpeed = zoomOutSpeed;
-        zoomInSpeed = 1.0/zoomOutSpeed;
-    }
-
-    public double getZoomInSpeed() {
-        return zoomInSpeed;
-    }
-
-    public void setZoomInSpeed(double zoomInSpeed) {
-        this.zoomInSpeed = zoomInSpeed;
-        zoomOutSpeed = 1.0/zoomInSpeed;
     }
 
     public Point getUpperBounds() {
@@ -258,34 +166,6 @@ public class Grapher {
     }
     public void hide() {
         visible(false);
-    }
-
-    public void drawGridLines(Point lowerBounds, Point upperBounds, double unit, int color, int size) {
-        if(unit == 0) return;
-        if(unit < 0) unit = -unit;
-
-        ArrayList<Point> gridPoints = new ArrayList<>();
-
-        Point lowestCorner = new Point(
-                (int) (lowerBounds.getX()/unit),
-                (int) (lowerBounds.getY()/unit)
-        ).scale(unit);
-        Point highestCorner = new Point(
-                (int) (upperBounds.getX()/unit),
-                (int) (upperBounds.getY()/unit)
-        ).scale(unit);
-        Point step = (highestCorner.subtract(lowestCorner)).scale(0.001);
-
-
-        for(double x = lowestCorner.getX(); x <= upperBounds.getX(); x += unit) {
-            if(x == 0) continue;
-            for(double y = lowestCorner.getY(); y <= highestCorner.getY(); y += step.getY()) gridPoints.add(new Point(x, y));
-        }
-        for(double y = lowestCorner.getY(); y <= upperBounds.getY(); y += unit) {
-            if(y == 0) continue;
-            for(double x = lowestCorner.getX(); x <= highestCorner.getX(); x += step.getX()) gridPoints.add(new Point(x, y));
-        }
-        addData(gridPoints.toArray(new Point[0]), color, size);
     }
 
     /**
@@ -423,78 +303,7 @@ public class Grapher {
         bs = canvas.getBufferStrategy();
 
         setTitle("Untitled Grapher");
-        eventSetup();
         updateVisual();
-    }
-
-    private void eventSetup() {
-        frame.addMouseWheelListener(e -> {
-            //scales the bounds based on the direction the scroll wheel was spun
-            double zoomScaleFactor = (e.getPreciseWheelRotation() < 0) ? zoomInSpeed : zoomOutSpeed;
-
-            //store the position of the mouse
-            Point mousePos = new Point(
-                    Util.map(0, winDims.width, lowerBounds.getX(), upperBounds.getX(), e.getX()),
-                    Util.map(winDims.width, 0, lowerBounds.getY(), upperBounds.getY(), e.getY())
-            );
-
-            //move the bounds to be relative to the mouse, then scale them,
-            //then move them back to be relative to the origin
-            setBounds(
-                    lowerBounds.subtract(mousePos).scale(zoomScaleFactor).add(mousePos),
-                    upperBounds.subtract(mousePos).scale(zoomScaleFactor).add(mousePos)
-            );
-
-        });
-        MouseInputAdapter mouseDrag = new MouseInputAdapter() {
-
-            double lastX = 0.0;
-            double lastY = 0.0;
-
-            boolean leftClick = false;
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-                leftClick = e.getButton() == 1;
-                lastX = e.getX();
-                lastY = e.getY();
-            }
-
-            @Override
-            public void mouseDragged(MouseEvent e) {
-
-                if(!leftClick) return;
-
-                Point dragDist = new Point(
-                        (lastX - e.getX()) * (upperBounds.getX() - lowerBounds.getX()) / winDims.width,
-                        (e.getY() - lastY) * (upperBounds.getY() - lowerBounds.getY()) / winDims.height
-                );
-
-                setBounds(lowerBounds.add(dragDist), upperBounds.add(dragDist));
-
-                lastX = e.getX();
-                lastY = e.getY();
-            }
-        };
-        canvas.addMouseListener(mouseDrag);
-        canvas.addMouseMotionListener(mouseDrag);
-    }
-
-    /**
-     * Draws the y-axis
-     */
-    void drawYAxis() {
-        for(int y = 0; y < pixelH; y++) {
-            setPixelRaw((int) Util.map(lowerBounds.getX(), upperBounds.getX(), 0, pixelW, 0), y, yAxisColor, yAxisSize);
-        }
-    }
-    /**
-     * Draws the x-axis on the window
-     */
-    void drawXAxis() {
-        for(int x = 0; x < pixelW; x++) {
-            setPixelRaw(x, (int) Util.map(lowerBounds.getY(), upperBounds.getY(), pixelH, 0, 0), xAxisColor, xAxisSize);
-        }
     }
 
     /**
@@ -514,32 +323,6 @@ public class Grapher {
     }
     public Point getWinDims() {
         return new Point(winDims.width, winDims.height);
-    }
-
-    /**
-     * Draws a line between the <b>p1</b> and <b>p2</b> points by setting pixel data
-     * @return if the points were too close for the line to be visible due to the point radius
-     */
-    private boolean drawLineBetween(Point p1, Point p2, int color, int size) {
-        //gets the pixel coordinates of each points
-        int p1x = (int) Util.map(lowerBounds.getX(), upperBounds.getX(), 0, winDims.width, p1.getX());
-        int p1y = (int) Util.map(lowerBounds.getY(), upperBounds.getY(), winDims.height, 0, p1.getY());
-        int p2x = (int) Util.map(lowerBounds.getX(), upperBounds.getX(), 0, winDims.width, p2.getX());
-        int p2y = (int) Util.map(lowerBounds.getY(), upperBounds.getY(), winDims.height, 0, p2.getY());
-        int xDist = p2x-p1x;
-        int yDist = p2y-p1y;
-        //if p1 and p2 are adjacent, don't draw the line
-        if(xDist*xDist < pointSize*pointSize && yDist*yDist < pointSize*pointSize) return false;
-        //draw each point
-        double dist = Math.hypot(xDist, yDist);
-        for(int i = 0; i <= dist; i++) {
-            setPixelRaw(
-                    (int) Util.map(0, dist, p1x, p2x, i),
-                    (int) Util.map(0, dist, p1y, p2y, i),
-                    color, size
-            );
-        }
-        return true;
     }
 
     /**
@@ -579,8 +362,6 @@ public class Grapher {
         if(lowerBounds.getX() == upperBounds.getX() || lowerBounds.getY() == upperBounds.getY()) return;
         //sets the background
         Arrays.fill(pixel, backgroundColor);
-        if(yAxisVisible) drawYAxis();
-        if(xAxisVisible) drawXAxis();
         //updates each pixel
         for(int d = 0; d < dataList.size(); d++) {
             Point[] data = dataList.get(d);
@@ -588,23 +369,6 @@ public class Grapher {
             int[] size = dataSizeList.get(d);
             for(int p = 0; p < data.length; p++) {
                 setPixel(data[p], color[p], size[p]);
-            }
-        }
-        if(connectPoints) {
-            for(int d = 0; d < dataList.size(); d++) {
-                Point[] data = dataList.get(d);
-                int[] color = dataColorList.get(d);
-                int[] size = dataSizeList.get(d);
-                for(int p = 1; p < data.length; p++) {
-                    Point ptFrom = data[p-1];
-                    Point ptTo = data[p];
-                    //if either of the points are in bounds, then draw the line between them
-                    if(((ptFrom.getX() >= lowerBounds.getX() && ptFrom.getX() <= upperBounds.getX()) ||
-                            (ptTo.getX() >= lowerBounds.getX() && ptTo.getX() <= upperBounds.getX())) &&
-                            ((ptFrom.getY() >= lowerBounds.getY() && ptFrom.getY() <= upperBounds.getY()) ||
-                                    (ptTo.getY() >= lowerBounds.getY() && ptTo.getY() <= upperBounds.getY()))
-                    ) drawLineBetween(ptFrom, ptTo, color[p], size[p]);
-                }
             }
         }
         //draws the pixels on the window
