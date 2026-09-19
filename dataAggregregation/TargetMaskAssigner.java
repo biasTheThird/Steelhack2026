@@ -9,11 +9,10 @@ import java.util.List;
 import javax.imageio.ImageIO;
 
 import src.Pixel;
-import src.Point;
 
 /**
- * Extracts foreground points from a manually created binary mask and assigns them
- * to source pixels in a deterministic, spatially ordered way.
+ * Extracts foreground coordinates from a manually created binary mask and assigns
+ * them to source pixels in a deterministic, spatially ordered way.
  *
  * Mask convention:
  * - Black background (0,0,0)
@@ -23,8 +22,8 @@ import src.Point;
  * If the mask contains more foreground pixels than there are source pixels, the
  * method samples the foreground evenly across the mask to keep the shape while
  * reducing the total count. If the mask contains fewer foreground pixels than
- * source pixels, the method cycles through the available target points to fill
- * the remaining assignments without failing.
+ * source pixels, the method cycles through the available target coordinates to
+ * fill the remaining assignments without failing.
  */
 public class TargetMaskAssigner {
 
@@ -32,9 +31,10 @@ public class TargetMaskAssigner {
     public static final int FOREGROUND_THRESHOLD = 200;
 
     /**
-     * Reads a binary mask from disk and returns all foreground coordinates.
+     * Reads a binary mask from disk and returns all foreground positions as Pixel
+     * objects, using only the Pixel coordinate model.
      */
-    public static List<Point> extractForegroundPoints(String maskPath) throws IOException {
+    public static List<Pixel> extractForegroundPoints(String maskPath) throws IOException {
         File file = new File(maskPath);
         BufferedImage mask = ImageIO.read(file);
         if (mask == null) {
@@ -47,8 +47,8 @@ public class TargetMaskAssigner {
      * Returns all foreground pixels in scanline order.
      * A foreground pixel is any pixel whose brightness is >= FOREGROUND_THRESHOLD.
      */
-    public static List<Point> extractForegroundPoints(BufferedImage mask) {
-        List<Point> foreground = new ArrayList<>();
+    public static List<Pixel> extractForegroundPoints(BufferedImage mask) {
+        List<Pixel> foreground = new ArrayList<>();
 
         int width = mask.getWidth();
         int height = mask.getHeight();
@@ -73,7 +73,7 @@ public class TargetMaskAssigner {
                 int brightness = (r + g + b) / 3;
 
                 if (brightness >= FOREGROUND_THRESHOLD) {
-                    foreground.add(new Point(x, y));
+                    foreground.add(new Pixel(255, 255, 255, x, y));
                 }
             }
         }
@@ -82,38 +82,37 @@ public class TargetMaskAssigner {
     }
 
     /**
-     * Selects exactly targetCount points from the foreground list in a deterministic,
+     * Selects exactly targetCount foreground pixels from the mask in a deterministic,
      * evenly spread order. This preserves the mask shape more naturally than random
      * sampling while keeping the implementation simple and fast.
      */
-    public static List<Point> sampleTargetPositions(List<Point> foreground, int targetCount) {
+    public static List<Pixel> sampleTargetPositions(List<Pixel> foreground, int targetCount) {
         if (targetCount <= 0 || foreground == null || foreground.isEmpty()) {
             return new ArrayList<>();
         }
 
-        List<Point> copied = new ArrayList<>(foreground.size());
-        for (Point p : foreground) {
-            copied.add(p.copy());
+        List<Pixel> copied = new ArrayList<>(foreground.size());
+        for (Pixel p : foreground) {
+            copied.add(new Pixel(p.r, p.g, p.b, p.xStart, p.yStart));
         }
 
         if (copied.size() == targetCount) {
             return copied;
         }
 
-        // More source pixels than target positions: cycle through the available
-        // positions in order so the assignment remains deterministic and never fails.
         if (copied.size() < targetCount) {
-            List<Point> expanded = new ArrayList<>(targetCount);
+            List<Pixel> expanded = new ArrayList<>(targetCount);
             for (int i = 0; i < targetCount; i++) {
-                expanded.add(copied.get(i % copied.size()).copy());
+                Pixel source = copied.get(i % copied.size());
+                expanded.add(new Pixel(source.r, source.g, source.b, source.xStart, source.yStart));
             }
             return expanded;
         }
 
-        // More target positions than source pixels: take an evenly spaced subset.
-        List<Point> selected = new ArrayList<>(targetCount);
+        List<Pixel> selected = new ArrayList<>(targetCount);
         if (targetCount == 1) {
-            selected.add(copied.get(0).copy());
+            Pixel first = copied.get(0);
+            selected.add(new Pixel(first.r, first.g, first.b, first.xStart, first.yStart));
             return selected;
         }
 
@@ -123,29 +122,30 @@ public class TargetMaskAssigner {
             if (index >= copied.size()) {
                 index = copied.size() - 1;
             }
-            selected.add(copied.get(index).copy());
+            Pixel chosen = copied.get(index);
+            selected.add(new Pixel(chosen.r, chosen.g, chosen.b, chosen.xStart, chosen.yStart));
         }
 
         return selected;
     }
 
     /**
-     * Assigns each source pixel a target coordinate and stores it in both the
-     * current point and the original source point.
+     * Assigns each source pixel a target coordinate and stores it on the pixel
+     * itself, matching the repo's existing pixel-based animation model.
      */
     public static void assignTargets(List<Pixel> sourcePixels, BufferedImage mask) {
         if (sourcePixels == null || sourcePixels.isEmpty()) {
             return;
         }
 
-        List<Point> maskTargets = sampleTargetPositions(extractForegroundPoints(mask), sourcePixels.size());
+        List<Pixel> maskTargets = sampleTargetPositions(extractForegroundPoints(mask), sourcePixels.size());
         for (int i = 0; i < sourcePixels.size(); i++) {
             Pixel pixel = sourcePixels.get(i);
             Point target = maskTargets.get(i % maskTargets.size()).copy();
 
             // Store the assignment on the pixel itself, which is where the project
             // already keeps the destination target for animation logic.
-            //pixel.setTarg(target.copy());
+            pixel.setTarg(target.xStart, target.yStart);
         }
     }
 
