@@ -1,4 +1,4 @@
-package src;
+package animation;
 
 public class Point {
 

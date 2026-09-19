@@ -24,14 +24,4 @@ public class Pixel {
         this.xTarg = xTarg;
         this.yTarg = yTarg;
     }
-
-    /**
-     * Advances this pixel one frame along its precomputed path.
-     * Snaps exactly to <b>targ</b> once <b>totalFrames</b> have elapsed,
-     * so floating point drift never leaves the pixel short of/past target.
-     * No-op if {@link #setTarg} hasn't been called yet.
-     */
-    public void update() {
-        //TODO
-    }
 }
