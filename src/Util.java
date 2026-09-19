@@ -4,6 +4,8 @@ import static java.awt.Color.HSBtoRGB;
 
 public class Util {
 
+    public static Grapher g = new Grapher();
+
     //pre-made colors, used in the Grapher Class
     public static final int RED = rgb(180,40,30);
     public static final int ORANGE = rgb(210, 110, 30);
