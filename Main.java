@@ -8,7 +8,8 @@ public class Main {
     
     public static void main(String[] args) {
         g = new Grapher();
-        g.setWinDims(new Point(400, 400));
+        DefinePixels definer = new DefinePixels("homer.jpg");
+        g.setWinDims(new Point(definer.getHeight(), definer.getWidth()));
     }
 
     public void fillHomer(Grapher g) {
