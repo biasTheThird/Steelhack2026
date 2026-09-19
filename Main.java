@@ -1,32 +1,38 @@
-import dataAggregregation.*;
-import animation.*;
-import src.*;
-import src.FixDimensions;
+import animation.Grapher;
+import animation.Start;
+import dataAggregregation.DefinePixels;
+import dataAggregregation.FixDimensions;
+import dataAggregregation.TargetMaskAssigner;
+import src.Pixel;
+import src.Util;
 
-import static animation.Start2.start;
-import static src.Util.*;
-
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        g = new Grapher();
-        g = g.setWinDims(new Point(picWidth, picHeight));
-
         BufferedImage sourceImage = FixDimensions.resize("./SourceImages/homer.jpg");
-        DefinePixels sourceLoader = new DefinePixels(sourceImage);
-        ArrayList<Pixel> sourcePixels = sourceLoader.getPixels();
-
-        BufferedImage targetMask = ImageIO.read(new File("./TargetImage/6aaede0902432_download-modified.jpg"));
-        TargetMaskAssigner.assignTargets(sourcePixels, targetMask);
-
-        pixels = sourcePixels;
-        for(Pixel p : pixels) {
-            System.out.println("(" + p.xTarg + ", " + p.yTarg + ")");
+        if (sourceImage == null) {
+            throw new IllegalStateException("Could not load source image: ./SourceImages/homer.jpg");
         }
-        //start();
+
+        DefinePixels sourceLoader = new DefinePixels(sourceImage);
+        List<Pixel> sourcePixels = sourceLoader.getPixels();
+
+        BufferedImage targetImage = FixDimensions.resize("./TargetImage/ritiii.jpg");
+        if (targetImage == null) {
+            throw new IllegalStateException("Could not load target image: ./TargetImage/ritiii.jpg");
+        }
+
+        List<Pixel> matchedPixels = TargetMaskAssigner.assignTargetsByColor(sourceImage, targetImage);
+        Util.pixels = new ArrayList<>(matchedPixels);
+
+        Util.g = new Grapher();
+        Start.start();
+
+        System.out.println("Assigned " + Util.pixels.size() + " source pixels to target positions.");
+        System.out.println("Target image: ./TargetImage/ritiii.jpg");
+        System.out.println("Sample target: " + matchedPixels.get(0).xTarg + ", " + matchedPixels.get(0).yTarg);
     }
 }

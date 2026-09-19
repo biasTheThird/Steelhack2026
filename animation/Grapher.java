@@ -8,7 +8,7 @@ import java.awt.*;
 import java.awt.image.*;
 import java.util.Arrays;
 
-import static dataAggregregation.DefinePixels.pixels;
+import static src.Util.pixels;
 
 /**
  * Each instance of this class can open a window that can display data

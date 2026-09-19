@@ -1,5 +1,6 @@
 package dataAggregregation;
 
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -9,21 +10,18 @@ import java.util.List;
 import javax.imageio.ImageIO;
 
 import src.Pixel;
+import src.Util;
 
 /**
- * Extracts foreground coordinates from a manually created binary mask and assigns
- * them to source pixels in a deterministic, spatially ordered way.
+ * Assigns pixels from a source image to the best matching target positions in a
+ * target image using color and saturation similarity.
  *
- * Mask convention:
- * - Black background (0,0,0)
- * - White foreground (255,255,255)
- * - Anything above a brightness threshold is treated as foreground.
- *
- * If the mask contains more foreground pixels than there are source pixels, the
- * method samples the foreground evenly across the mask to keep the shape while
- * reducing the total count. If the mask contains fewer foreground pixels than
- * source pixels, the method cycles through the available target coordinates to
- * fill the remaining assignments without failing.
+ * The logic is:
+ * - Gather all target pixels that are part of the target shape.
+ * - For each source pixel, compare its RGB and saturation values to every target
+ *   candidate and choose the closest match.
+ * - Store the chosen target coordinate on the source pixel through setTarg().
+ * - Push the matched pixels into Util.pixels so the animation subsystem can use them.
  */
 public class TargetMaskAssigner {
 
@@ -31,7 +29,7 @@ public class TargetMaskAssigner {
     public static final int FOREGROUND_THRESHOLD = 200;
 
     /**
-     * Reads a binary mask from disk and returns all foreground positions as Pixel
+     * Reads a target mask from disk and returns all foreground positions as Pixel
      * objects, using only the Pixel coordinate model.
      */
     public static List<Pixel> extractForegroundPoints(String maskPath) throws IOException {
@@ -44,8 +42,8 @@ public class TargetMaskAssigner {
     }
 
     /**
-     * Returns all foreground pixels in scanline order.
-     * A foreground pixel is any pixel whose brightness is >= FOREGROUND_THRESHOLD.
+     * Finds all foreground pixels inside a mask, treating a pixel as foreground if it
+     * is sufficiently bright.
      */
     public static List<Pixel> extractForegroundPoints(BufferedImage mask) {
         List<Pixel> foreground = new ArrayList<>();
@@ -83,8 +81,7 @@ public class TargetMaskAssigner {
 
     /**
      * Selects exactly targetCount foreground pixels from the mask in a deterministic,
-     * evenly spread order. This preserves the mask shape more naturally than random
-     * sampling while keeping the implementation simple and fast.
+     * evenly spread order. This is retained as a fallback for binary masks.
      */
     public static List<Pixel> sampleTargetPositions(List<Pixel> foreground, int targetCount) {
         if (targetCount <= 0 || foreground == null || foreground.isEmpty()) {
@@ -130,15 +127,142 @@ public class TargetMaskAssigner {
     }
 
     /**
-     * Assigns each source pixel a target coordinate and stores it on the pixel
-     * itself, matching the repo's existing pixel-based animation model.
+     * Computes the perceived saturation of an RGB color.
+     */
+    private static double saturation(int r, int g, int b) {
+        int max = Math.max(Math.max(r, g), b);
+        int min = Math.min(Math.min(r, g), b);
+        int delta = max - min;
+        if (max == 0) {
+            return 0.0;
+        }
+        return delta / (double) max;
+    }
+
+    /**
+     * Computes a weighted color similarity score between source and target pixels.
+     * Lower score means better match.
+     */
+    private static double colorMatchScore(int sourceR, int sourceG, int sourceB,
+                                         int targetR, int targetG, int targetB) {
+        double dr = sourceR - targetR;
+        double dg = sourceG - targetG;
+        double db = sourceB - targetB;
+
+        double sourceSat = saturation(sourceR, sourceG, sourceB);
+        double targetSat = saturation(targetR, targetG, targetB);
+        double brightnessDiff = Math.abs(((sourceR + sourceG + sourceB) / 3.0) - ((targetR + targetG + targetB) / 3.0));
+
+        double rgbDistance = Math.sqrt(dr * dr + dg * dg + db * db);
+        double satDistance = Math.abs(sourceSat - targetSat);
+
+        // Tuned weights: saturation and brightness matter more than raw RGB distance
+        // for facial/portrait morphing, so the target assignment tracks the target shape
+        // closer to the human face instead of a noisy nearest-color match.
+        return (rgbDistance * 0.75) + (satDistance * 140.0) + (brightnessDiff * 0.9);
+    }
+
+    /**
+     * Finds the target pixel that best matches each source pixel based on RGB + saturation.
+     * The source pixel is then assigned that target coordinate by calling setTarg().
+     */
+    public static List<Pixel> assignTargetsByColor(BufferedImage sourceImage, BufferedImage targetImage) {
+        if (sourceImage == null || targetImage == null) {
+            return new ArrayList<>();
+        }
+
+        int sourceWidth = sourceImage.getWidth();
+        int sourceHeight = sourceImage.getHeight();
+        int targetWidth = targetImage.getWidth();
+        int targetHeight = targetImage.getHeight();
+
+        List<Pixel> sourcePixels = new ArrayList<>();
+        for (int y = 0; y < sourceHeight; y++) {
+            for (int x = 0; x < sourceWidth; x++) {
+                int rgb = sourceImage.getRGB(x, y);
+                int r = (rgb >> 16) & 0xFF;
+                int g = (rgb >> 8) & 0xFF;
+                int b = rgb & 0xFF;
+                sourcePixels.add(new Pixel(r, g, b, x, y));
+            }
+        }
+
+        int targetStride = 10;
+        if (targetWidth * targetHeight > 200000) {
+            targetStride = 12;
+        }
+        if (targetWidth * targetHeight > 300000) {
+            targetStride = 15;
+        }
+
+        List<Pixel> targetCandidates = new ArrayList<>();
+        for (int y = 0; y < targetHeight; y += targetStride) {
+            for (int x = 0; x < targetWidth; x += targetStride) {
+                int rgb = targetImage.getRGB(x, y);
+                int a = (rgb >>> 24) & 0xFF;
+                if (a == 0) {
+                    continue;
+                }
+
+                int r = (rgb >> 16) & 0xFF;
+                int g = (rgb >> 8) & 0xFF;
+                int b = rgb & 0xFF;
+                int brightness = (r + g + b) / 3;
+
+                if (brightness >= 18 || saturation(r, g, b) > 0.08) {
+                    targetCandidates.add(new Pixel(r, g, b, x, y));
+                }
+            }
+        }
+
+        if (targetCandidates.isEmpty()) {
+            Util.pixels = new ArrayList<>(sourcePixels);
+            return new ArrayList<>(sourcePixels);
+        }
+
+        for (Pixel sourcePixel : sourcePixels) {
+            Pixel bestTarget = targetCandidates.get(0);
+            double bestScore = Double.POSITIVE_INFINITY;
+
+            for (Pixel targetPixel : targetCandidates) {
+                double score = colorMatchScore(sourcePixel.r, sourcePixel.g, sourcePixel.b,
+                        targetPixel.r, targetPixel.g, targetPixel.b);
+
+                if (score < bestScore) {
+                    bestScore = score;
+                    bestTarget = targetPixel;
+                }
+            }
+
+            sourcePixel.setTarg(bestTarget.xStart, bestTarget.yStart);
+        }
+
+        Util.pixels = new ArrayList<>(sourcePixels);
+        return sourcePixels;
+    }
+
+    /**
+     * Backwards-compatible overload that matches the old mask-driven API but now uses
+     * a color-aware best-match strategy against the target image.
      */
     public static void assignTargets(List<Pixel> sourcePixels, BufferedImage mask) {
         if (sourcePixels == null || sourcePixels.isEmpty()) {
             return;
         }
 
-        sampleTargetPositions(extractForegroundPoints(mask), sourcePixels.size());
+        List<Pixel> targetCandidates = extractForegroundPoints(mask);
+        if (targetCandidates.isEmpty()) {
+            Util.pixels = new ArrayList<>(sourcePixels);
+            return;
+        }
+
+        for (int i = 0; i < sourcePixels.size(); i++) {
+            Pixel pixel = sourcePixels.get(i);
+            Pixel targetPixel = targetCandidates.get(i % targetCandidates.size());
+            pixel.setTarg(targetPixel.xStart, targetPixel.yStart);
+        }
+
+        Util.pixels = new ArrayList<>(sourcePixels);
     }
 
     /**

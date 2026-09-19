@@ -1,4 +1,4 @@
-package src;
+package dataAggregregation;
 
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;

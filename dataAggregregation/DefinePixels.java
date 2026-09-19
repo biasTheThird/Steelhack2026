@@ -18,6 +18,7 @@ public class DefinePixels {
             return; // bail out before touching width/height/pixels
         }
 
+        pixels.clear();
         this.img = img;
         height = img.getHeight();
         width = img.getWidth();
