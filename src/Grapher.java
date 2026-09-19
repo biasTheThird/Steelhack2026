@@ -24,8 +24,8 @@ public class Grapher {
 
     //sets default graphing values
     private Point lowerBounds = new Point(0, 0);
-    private Point upperBounds = new Point(900, 900);
-    private Dimension winDims = new Dimension(900, 900);
+    private Point upperBounds = new Point(400, 400);
+    private Dimension winDims = new Dimension(400, 400);
     private int backgroundColor = Util.BLACK;
     private int pointSize = 1;
 
@@ -168,7 +168,9 @@ public class Grapher {
      * @see #setWinDims(Dimension)
      */
     public Grapher setWinDims(Point dims) {
-        return setWinDims(new Dimension((int)dims.getX(), (int)dims.getY()));
+        Grapher gOut = setWinDims(new Dimension((int)dims.getX(), (int)dims.getY()));
+        gOut.updateVisual();
+        return gOut;
     }
     public Point getWinDims() {
         return new Point(winDims.width, winDims.height);
@@ -182,7 +184,7 @@ public class Grapher {
         setPixelRaw(
                 //maps the x and y values from the data bounds to the window bounds
                 (int) Util.map(lowerBounds.getX(), upperBounds.getX(), 0, pixelW, x),
-                (int) Util.map(lowerBounds.getY(), upperBounds.getY(), pixelH, 0, y),
+                (int) Util.map(upperBounds.getY(), lowerBounds.getY(), pixelH, 0, y),
                 color, size
         );
     }

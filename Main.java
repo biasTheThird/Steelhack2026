@@ -5,18 +5,22 @@ import static src.Util.g;
 import java.util.List;
 
 public class Main {
-    
+
+    public static String homerPath = "./SourceImages/homer.jpg";
     public static void main(String[] args) {
         g = new Grapher();
-        DefinePixels definer = new DefinePixels("homer.jpg");
-        g.setWinDims(new Point(definer.getHeight(), definer.getWidth()));
+        g = g.setWinDims(new Point(400, 400));
+        g.setTitle("Now You See Me");
+
+        DefinePixels definer = new DefinePixels(homerPath);
+        g.updateVisual();
     }
 
-    public void fillHomer(Grapher g) {
-        DefinePixels definer = new DefinePixels("homer.jpg");
+    public void fillHomer() {
+        DefinePixels definer = new DefinePixels(homerPath);
         List<Pixel> pixelList = definer.getPixels();
-        for(int y = 0; y< definer.getHeight(); y++) {
-            for(int x = 0; x< definer.getHeight(); x++) {
+        for(int y = 0; y < definer.getHeight(); y++) {
+            for(int x = 0; x < definer.getHeight(); x++) {
 
             }
         }
