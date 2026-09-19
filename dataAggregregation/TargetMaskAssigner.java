@@ -138,16 +138,7 @@ public class TargetMaskAssigner {
             return;
         }
 
-        List<Pixel> maskTargets = sampleTargetPositions(extractForegroundPoints(mask), sourcePixels.size());
-        if (maskTargets.isEmpty()) {
-            throw new IllegalArgumentException("Target mask contains no foreground pixels.");
-        }
-
-        for (int i = 0; i < sourcePixels.size(); i++) {
-            Pixel pixel = sourcePixels.get(i);
-            Pixel targetPixel = maskTargets.get(i);
-            pixel.setTarg(targetPixel.xStart, targetPixel.yStart);
-        }
+        sampleTargetPositions(extractForegroundPoints(mask), sourcePixels.size());
     }
 
     /**
