@@ -28,11 +28,13 @@ public class Main {
         List<Pixel> matchedPixels = TargetMaskAssigner.assignTargetsByColor(sourceImage, targetImage);
         Util.pixels = new ArrayList<>(matchedPixels);
 
-        Util.g = new Grapher();
-        Start.start();
-
         System.out.println("Assigned " + Util.pixels.size() + " source pixels to target positions.");
         System.out.println("Target image: ./TargetImage/ritiii.jpg");
-        System.out.println("Sample target: " + matchedPixels.get(0).xTarg + ", " + matchedPixels.get(0).yTarg);
+        if (!matchedPixels.isEmpty()) {
+            System.out.println("Sample target: " + matchedPixels.get(0).xTarg + ", " + matchedPixels.get(0).yTarg);
+        }
+
+        Util.g = new Grapher();
+        Start.start();
     }
 }

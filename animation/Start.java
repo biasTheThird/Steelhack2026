@@ -1,47 +1,67 @@
 package animation;
 
+import javax.swing.*;
 import src.*;
+
 import static src.Util.*;
 
 public class Start {
 
     public static void start() {
-        while(!isCompleted()) {
-            updatePixels();
-            g.updateVisual();
-        }
+        SwingUtilities.invokeLater(() -> {
+            Timer timer = new Timer(16, e -> {
+                if (isCompleted()) {
+                    ((Timer) e.getSource()).stop();
+                    return;
+                }
+
+                updatePixels();
+                if (g != null) {
+                    g.updateVisual();
+                }
+            });
+            timer.setInitialDelay(0);
+            timer.start();
+        });
     }
 
     static boolean isCompleted() {
+        if (pixels == null || pixels.isEmpty()) {
+            return true;
+        }
+
         double distSum = 0;
-        for(Pixel p : pixels) distSum += Math.hypot(p.xPos - p.xTarg, p.yPos - p.yTarg);
+        for (Pixel p : pixels) {
+            distSum += Math.hypot(p.xPos - p.xTarg, p.yPos - p.yTarg);
+        }
         return distSum <= maxAveDist * pixels.size();
     }
 
     static void updatePixels() {
+        if (pixels == null || pixels.isEmpty()) {
+            return;
+        }
 
-        for(Pixel p : pixels) {
+        for (Pixel p : pixels) {
+            double dx = p.xTarg - p.xPos;
+            double dy = p.yTarg - p.yPos;
 
-            double xForce = (p.xPos - p.xTarg) * targAttraction;
-            double yForce = (p.yPos - p.yTarg) * targAttraction;
+            double xForce = dx * targAttraction;
+            double yForce = dy * targAttraction;
 
-            for(Pixel p2 : pixels) {
-                double dist = Math.hypot((p.yPos - p2.yPos), (p.xPos - p2.xPos)) / repulsion;
-                xForce += (p.xPos - p2.xPos) / dist;
-                yForce += (p.yPos - p2.yPos) / dist;
-            }
-
-
-            p.xPos += p.xVel * dt;
-            p.yPos += p.yVel * dt;
             p.xVel += xForce * dt;
             p.yVel += yForce * dt;
 
-            //boundary checks
-            if(p.xPos < 0) p.xPos = 0;
-            if(p.yPos < 0) p.yPos = 0;
-            if(p.xPos > picWidth) p.xPos = picWidth;
-            if(p.yPos > picHeight) p.yPos = picHeight;
+            p.xPos += p.xVel * dt;
+            p.yPos += p.yVel * dt;
+
+            p.xVel *= 0.92;
+            p.yVel *= 0.92;
+
+            if (p.xPos < 0) p.xPos = 0;
+            if (p.yPos < 0) p.yPos = 0;
+            if (p.xPos > picWidth) p.xPos = picWidth;
+            if (p.yPos > picHeight) p.yPos = picHeight;
         }
     }
 }
