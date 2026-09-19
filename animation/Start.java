@@ -7,7 +7,7 @@ import static src.Util.*;
 
 public class Start {
 
-    public static void start() {
+    public static void start(boolean pixelsRepel) {
         SwingUtilities.invokeLater(() -> {
             Timer timer = new Timer(16, e -> {
                 if (isCompleted()) {

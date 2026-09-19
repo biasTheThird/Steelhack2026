@@ -9,10 +9,11 @@ import src.Util;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import static src.Util.*;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        BufferedImage sourceImage = FixDimensions.resize("./SourceImages/homer.jpg");
+        BufferedImage sourceImage = FixDimensions.resize("./SourceImages/image3.jpg");
         if (sourceImage == null) {
             throw new IllegalStateException("Could not load source image: ./SourceImages/homer.jpg");
         }
@@ -26,15 +27,15 @@ public class Main {
         }
 
         List<Pixel> matchedPixels = TargetMaskAssigner.assignTargetsByColor(sourceImage, targetImage);
-        Util.pixels = new ArrayList<>(matchedPixels);
+        pixels = new ArrayList<>(matchedPixels);
 
-        System.out.println("Assigned " + Util.pixels.size() + " source pixels to target positions.");
+        System.out.println("Assigned " + pixels.size() + " source pixels to target positions.");
         System.out.println("Target image: ./TargetImage/ritiii.jpg");
         if (!matchedPixels.isEmpty()) {
             System.out.println("Sample target: " + matchedPixels.get(0).xTarg + ", " + matchedPixels.get(0).yTarg);
         }
 
-        Util.g = new Grapher();
-        Start.start();
+        g = new Grapher();
+        Start.start(false);
     }
 }
