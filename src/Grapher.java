@@ -6,7 +6,7 @@ import java.awt.event.*;
 import java.awt.image.*;
 import java.util.Arrays;
 
-import static animation.Start.pixels;
+import static dataAggregregation.DefinePixels.pixels;
 
 /**
  * Each instance of this class can open a window that can display data

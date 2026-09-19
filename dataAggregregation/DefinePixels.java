@@ -13,9 +13,9 @@ import src.Pixel;
 public class DefinePixels {
 
     private BufferedImage img;
-    private int height;
-    private int width;
-    private List<Pixel> pixels = new ArrayList<>();
+    public static int height;
+    public static int width;
+    public static List<Pixel> pixels = new ArrayList<>();
 
     public DefinePixels(String path) {
         try {
