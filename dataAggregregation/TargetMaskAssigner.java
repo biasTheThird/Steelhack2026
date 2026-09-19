@@ -27,6 +27,7 @@ public class TargetMaskAssigner {
 
     public static final int IMAGE_DIMENSION = 400;
     public static final int FOREGROUND_THRESHOLD = 200;
+    public static final int MAX_ASSIGNED_PIXELS = 160000;
 
     /**
      * Reads a target mask from disk and returns all foreground positions as Pixel
@@ -176,28 +177,40 @@ public class TargetMaskAssigner {
         int targetWidth = targetImage.getWidth();
         int targetHeight = targetImage.getHeight();
 
+        int sourceStep = 1;
+        int targetStep = 1;
+
+        if (sourceWidth * sourceHeight > MAX_ASSIGNED_PIXELS) {
+            sourceStep = (int) Math.ceil(Math.sqrt((double) (sourceWidth * sourceHeight) / MAX_ASSIGNED_PIXELS));
+        }
+        if (targetWidth * targetHeight > MAX_ASSIGNED_PIXELS) {
+            targetStep = (int) Math.ceil(Math.sqrt((double) (targetWidth * targetHeight) / MAX_ASSIGNED_PIXELS));
+        }
+
         List<Pixel> sourcePixels = new ArrayList<>();
-        for (int y = 0; y < sourceHeight; y++) {
-            for (int x = 0; x < sourceWidth; x++) {
+        for (int y = 0; y < sourceHeight; y += sourceStep) {
+            for (int x = 0; x < sourceWidth; x += sourceStep) {
+                if (sourcePixels.size() >= MAX_ASSIGNED_PIXELS) {
+                    break;
+                }
                 int rgb = sourceImage.getRGB(x, y);
                 int r = (rgb >> 16) & 0xFF;
                 int g = (rgb >> 8) & 0xFF;
                 int b = rgb & 0xFF;
                 sourcePixels.add(new Pixel(r, g, b, x, y));
             }
-        }
-
-        int targetStride = 10;
-        if (targetWidth * targetHeight > 200000) {
-            targetStride = 12;
-        }
-        if (targetWidth * targetHeight > 300000) {
-            targetStride = 15;
+            if (sourcePixels.size() >= MAX_ASSIGNED_PIXELS) {
+                break;
+            }
         }
 
         List<Pixel> targetCandidates = new ArrayList<>();
-        for (int y = 0; y < targetHeight; y += targetStride) {
-            for (int x = 0; x < targetWidth; x += targetStride) {
+        for (int y = 0; y < targetHeight; y += targetStep) {
+            for (int x = 0; x < targetWidth; x += targetStep) {
+                if (targetCandidates.size() >= MAX_ASSIGNED_PIXELS) {
+                    break;
+                }
+
                 int rgb = targetImage.getRGB(x, y);
                 int a = (rgb >>> 24) & 0xFF;
                 if (a == 0) {
@@ -213,6 +226,9 @@ public class TargetMaskAssigner {
                     targetCandidates.add(new Pixel(r, g, b, x, y));
                 }
             }
+            if (targetCandidates.size() >= MAX_ASSIGNED_PIXELS) {
+                break;
+            }
         }
 
         if (targetCandidates.isEmpty()) {
@@ -220,20 +236,37 @@ public class TargetMaskAssigner {
             return new ArrayList<>(sourcePixels);
         }
 
-        for (Pixel sourcePixel : sourcePixels) {
-            Pixel bestTarget = targetCandidates.get(0);
+        boolean[] usedTarget = new boolean[targetCandidates.size()];
+        int sourceLimit = Math.min(sourcePixels.size(), targetCandidates.size());
+
+        for (int i = 0; i < sourceLimit; i++) {
+            Pixel sourcePixel = sourcePixels.get(i);
+            Pixel bestTarget = null;
+            int bestIndex = -1;
             double bestScore = Double.POSITIVE_INFINITY;
 
-            for (Pixel targetPixel : targetCandidates) {
+            for (int j = 0; j < targetCandidates.size(); j++) {
+                if (usedTarget[j]) {
+                    continue;
+                }
+
+                Pixel targetPixel = targetCandidates.get(j);
                 double score = colorMatchScore(sourcePixel.r, sourcePixel.g, sourcePixel.b,
                         targetPixel.r, targetPixel.g, targetPixel.b);
 
                 if (score < bestScore) {
                     bestScore = score;
                     bestTarget = targetPixel;
+                    bestIndex = j;
                 }
             }
 
+            if (bestTarget == null) {
+                bestTarget = targetCandidates.get(i % targetCandidates.size());
+                bestIndex = i % targetCandidates.size();
+            }
+
+            usedTarget[bestIndex] = true;
             sourcePixel.setTarg(bestTarget.xStart, bestTarget.yStart);
         }
 
