@@ -3,65 +3,57 @@ package src;
 public class Pixel {
 
     public final int r, g, b;
-    public final double xStart, yStart;
+    public final Point startPos;
 
-    double xCurrent, yCurrent;
-    double xTarg, yTarg;
-    double xVel, yVel;
+    public Point pos, targ, vel;
 
-    public double getxCurrent() {
-        return xCurrent;
-    }
-
-    public void setxCurrent(double xCurrent) {
-        this.xCurrent = xCurrent;
-    }
-
-    public double getyCurrent() {
-        return yCurrent;
-    }
-
-    public void setyCurrent(double yCurrent) {
-        this.yCurrent = yCurrent;
-    }
-
-    public double getxTarg() {
-        return xTarg;
-    }
-
-    public void setxTarg(double xTarg) {
-        this.xTarg = xTarg;
-    }
-
-    public double getyTarg() {
-        return yTarg;
-    }
-
-    public void setyTarg(double yTarg) {
-        this.yTarg = yTarg;
-    }
-
-    public double getxVel() {
-        return xVel;
-    }
-
-    public void setxVel(double xVel) {
-        this.xVel = xVel;
-    }
-
-    public double getyVel() {
-        return yVel;
-    }
-
-    public void setyVel(double yVel) {
-        this.yVel = yVel;
-    }
-
-    public Pixel(int r, int g, int b, double x, double y) {
+    public Pixel(int r, int g, int b, Point startPos) {
         this.r = r;
         this.g = g;
         this.b = b;
-        this.xStart = x;
-        this.yStart = y;
+        this.startPos = startPos;
+    }
+    public Pixel(int r, int g, int b, int xStart, int yStart) {
+        this(r, g, b, new Point(xStart, yStart));
+    }
+
+    public int getR() {
+        return r;
+    }
+
+    public int getG() {
+        return g;
+    }
+
+    public int getB() {
+        return b;
+    }
+
+    public Point getStartPos() {
+        return startPos;
+    }
+
+    public Point getPos() {
+        return pos;
+    }
+
+    public void setPos(Point pos) {
+        this.pos = pos;
+    }
+
+    public Point getTarg() {
+        return targ;
+    }
+
+    public void setTarg(Point targ) {
+        this.targ = targ;
+    }
+
+    public Point getVel() {
+        return vel;
+    }
+
+    public void setVel(Point vel) {
+        this.vel = vel;
     }
 }
