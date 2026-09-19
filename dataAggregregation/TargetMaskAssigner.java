@@ -26,7 +26,7 @@ import src.Util;
 public class TargetMaskAssigner {
 
     public static final int IMAGE_DIMENSION = 400;
-    public static final int FOREGROUND_THRESHOLD = 400;
+    public static final int FOREGROUND_THRESHOLD = 200;
     // Keep the interactive demo responsive: a full 400x400 all-pairs match is far too
     // expensive for the Swing window to open and animate smoothly.
     public static final int MAX_ASSIGNED_PIXELS = 72000;
