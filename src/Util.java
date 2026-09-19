@@ -1,5 +1,7 @@
 package src;
 
+import animation.Grapher;
+
 import java.util.ArrayList;
 
 import static java.awt.Color.HSBtoRGB;
