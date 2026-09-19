@@ -4,18 +4,16 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
-
 import javax.imageio.ImageIO;
 
 import src.Pixel;
+import static src.Util.*;
 
 public class DefinePixels {
 
     private BufferedImage img;
     public static int height;
     public static int width;
-    public static List<Pixel> pixels = new ArrayList<>();
 
     public DefinePixels(String path) {
         try {
@@ -61,7 +59,7 @@ public class DefinePixels {
         return img;
     }
 
-    public List<Pixel> getPixels() {
+    public ArrayList<Pixel> getPixels() {
         return pixels;
     }
 }

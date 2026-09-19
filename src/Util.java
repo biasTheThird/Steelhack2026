@@ -1,10 +1,16 @@
 package src;
 
+import java.util.ArrayList;
+
 import static java.awt.Color.HSBtoRGB;
 
 public class Util {
 
+    //this project related stuff
     public static Grapher g;
+    public static String homerPath = "./SourceImages/homer.jpg";
+    public static ArrayList<Pixel> pixels = new ArrayList<>();
+
 
     //pre-made colors, used in the Grapher Class
     public static final int RED = rgb(180,40,30);

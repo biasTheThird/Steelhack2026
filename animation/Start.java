@@ -1,8 +1,6 @@
 package animation;
 
-import src.*;
 
-import java.util.ArrayList;
 
 public class Start {
 

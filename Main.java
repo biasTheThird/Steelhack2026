@@ -1,12 +1,12 @@
-import dataAggregregation.DefinePixels;
+import dataAggregregation.*;
 import src.*;
-import static src.Util.g;
+
+import static src.Util.*;
 
 import java.util.List;
 
 public class Main {
 
-    public static String homerPath = "./SourceImages/homer.jpg";
     public static void main(String[] args) {
         g = new Grapher();
         g = g.setWinDims(new Point(400, 400));
