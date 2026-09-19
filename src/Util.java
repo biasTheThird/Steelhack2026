@@ -10,7 +10,6 @@ public class Util {
 
     //this project related stuff
     public static Grapher g;
-    public static final String homerPath = "./SourceImages/homer.jpg";
     public static final int picWidth = 400;
     public static final int picHeight = 400;
     public static ArrayList<Pixel> pixels = new ArrayList<>();

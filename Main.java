@@ -1,24 +1,29 @@
-import dataAggregregation.DefinePixels;
-import dataAggregregation.TargetMaskAssigner;
-import src.Pixel;
+import dataAggregregation.*;
+import animation.*;
+import src.*;
+import src.FixDimensions;
+
+import static animation.Start2.start;
+import static src.Util.*;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.util.List;
+import java.util.ArrayList;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        BufferedImage sourceImage = ImageIO.read(new File("./SourceImages/homer.jpg"));
+        g = new Grapher();
+        g = g.setWinDims(new Point(picWidth, picHeight));
+
+        BufferedImage sourceImage = FixDimensions.resize("./SourceImages/homer.jpg");
         DefinePixels sourceLoader = new DefinePixels(sourceImage);
-        List<Pixel> sourcePixels = sourceLoader.getPixels();
+        ArrayList<Pixel> sourcePixels = sourceLoader.getPixels();
 
         BufferedImage targetMask = ImageIO.read(new File("./TargetImage/6aaede0902432_download-modified.jpg"));
         TargetMaskAssigner.assignTargets(sourcePixels, targetMask);
 
-        for (int i = 0; i < Math.min(5, sourcePixels.size()); i++) {
-            Pixel p = sourcePixels.get(i);
-            System.out.println("pixel " + i + " -> targ = (" + p.xTarg + ", " + p.yTarg + ")");
-        }
+        pixels = sourcePixels;
+        start();
     }
 }
