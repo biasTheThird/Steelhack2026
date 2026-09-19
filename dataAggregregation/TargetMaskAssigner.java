@@ -141,11 +141,8 @@ public class TargetMaskAssigner {
         List<Pixel> maskTargets = sampleTargetPositions(extractForegroundPoints(mask), sourcePixels.size());
         for (int i = 0; i < sourcePixels.size(); i++) {
             Pixel pixel = sourcePixels.get(i);
-            Point target = maskTargets.get(i % maskTargets.size()).copy();
-
-            // Store the assignment on the pixel itself, which is where the project
-            // already keeps the destination target for animation logic.
-            pixel.setTarg(target.xStart, target.yStart);
+            Pixel targetPixel = maskTargets.get(i % maskTargets.size());
+            pixel.setTarg(targetPixel.xStart, targetPixel.yStart);
         }
     }
 
