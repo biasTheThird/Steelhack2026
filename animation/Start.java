@@ -6,8 +6,6 @@ import java.util.ArrayList;
 
 public class Start {
 
-    public static ArrayList<Pixel> pixels;
-
     public void start() {
 
 

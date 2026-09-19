@@ -15,7 +15,7 @@ public class DefinePixels {
     private BufferedImage img;
     private int height;
     private int width;
-    private List<Pixel> pixels = new ArrayList<>();
+    public static List<Pixel> pixels = new ArrayList<>();
 
     public DefinePixels(String path) {
         try {

@@ -145,7 +145,7 @@ public class TargetMaskAssigner {
 
             // Store the assignment on the pixel itself, which is where the project
             // already keeps the destination target for animation logic.
-            pixel.setTarg(target.copy());
+            //pixel.setTarg(target.copy());
         }
     }
 
