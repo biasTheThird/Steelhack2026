@@ -2,9 +2,12 @@ package src;
 
 public class Pixel {
 
-    int r, g, b;
-    double xStart;
-    double yStart;
+    public final int r, g, b;
+    public final double xStart, yStart;
+
+    double xCurrent, yCurrent;
+    double xTarg, yTarg;
+    double xVel, yVel;
 
     public double getxCurrent() {
         return xCurrent;
@@ -53,13 +56,6 @@ public class Pixel {
     public void setyVel(double yVel) {
         this.yVel = yVel;
     }
-
-    double xCurrent;
-    double yCurrent;
-    double xTarg;
-    double yTarg;
-    double xVel;
-    double yVel;
 
     public Pixel(int r, int g, int b, double x, double y) {
         this.r = r;
