@@ -1,0 +1,8 @@
+C:\Users\anand\Steelhack2026\Main.java 
+C:\Users\anand\Steelhack2026\animation\Start.java 
+C:\Users\anand\Steelhack2026\dataAggregregation\DefinePixels.java 
+C:\Users\anand\Steelhack2026\dataAggregregation\TargetMaskAssigner.java 
+C:\Users\anand\Steelhack2026\src\Grapher.java 
+C:\Users\anand\Steelhack2026\src\Pixel.java 
+C:\Users\anand\Steelhack2026\src\Point.java 
+C:\Users\anand\Steelhack2026\src\Util.java 
