@@ -24,6 +24,9 @@ public class Main {
         TargetMaskAssigner.assignTargets(sourcePixels, targetMask);
 
         pixels = sourcePixels;
-        start();
+        for(Pixel p : pixels) {
+            System.out.println("(" + p.xTarg + ", " + p.yTarg + ")");
+        }
+        //start();
     }
 }

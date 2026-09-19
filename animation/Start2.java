@@ -8,8 +8,10 @@ import java.util.List;
 
 public class Start2 {
 
+    static int n = 0;
+
     // Larger = fewer chunks, more pixels checked per chunk
-    static final int CHUNK_SIZE = 50;
+    static final int CHUNK_SIZE = 5;
     static final int CHUNKS_X = (int) Math.ceil((double) picWidth / CHUNK_SIZE);
     static final int CHUNKS_Y = (int) Math.ceil((double) picHeight / CHUNK_SIZE);
     static final List<Pixel>[][] chunks = createChunks();
@@ -28,16 +30,12 @@ public class Start2 {
     }
 
     public static void start() {
-        g.updateVisual();
         while(!isCompleted()) {
-            System.out.println("not complete");
+            System.out.println(n++);
             updateChunks();
-            System.out.println("1");
             updatePixels();
-            System.out.println("2");
             g.updateVisual();
         }
-        System.out.println("complete");
     }
 
     static boolean isCompleted() {
