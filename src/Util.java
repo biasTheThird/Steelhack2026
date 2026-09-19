@@ -17,7 +17,7 @@ public class Util {
     public static final double maxAveDist = 0.25;
     public static final double repulsion = 0.1;
     public static final double targAttraction = 1;
-    public static final double dt = 0.01;
+    public static final double dt = 0.025;
 
 
     //pre-made colors, used in the Grapher Class
