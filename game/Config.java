@@ -20,7 +20,7 @@ public final class Config {
     public static final int MAX_PIXELS = 60000;
 
     /** Seconds a round is playable once the morph starts. */
-    public static final int ROUND_SECONDS = 75;
+    public static final int ROUND_SECONDS = 30;
 
     /** Seconds the drawer has to pick a target before one is chosen for them. */
     public static final int CHOOSE_SECONDS = 20;
