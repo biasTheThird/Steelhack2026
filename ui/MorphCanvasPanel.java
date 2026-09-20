@@ -31,7 +31,7 @@ public final class MorphCanvasPanel extends JPanel {
     private final Timer ticker;
 
     private MorphAnimator animator;
-    private int dotSize = 1;
+    private int dotSize = 2;
 
     public MorphCanvasPanel() {
         setOpaque(true);
@@ -62,7 +62,7 @@ public final class MorphCanvasPanel extends JPanel {
         animator = new MorphAnimator(data);
 
         // Sparse pixel sets leave gaps in the picture, so grow the dot to cover them.
-        dotSize = data.count < 18000 ? 2 : 1;
+        //dotSize = data.count < 18000 ? 2 : 1;
 
         animator.render(buffer, Config.CANVAS, Config.CANVAS, Theme.CANVAS_BACKGROUND, dotSize);
         repaint();
