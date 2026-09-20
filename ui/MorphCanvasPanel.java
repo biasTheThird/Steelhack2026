@@ -66,7 +66,10 @@ public final class MorphCanvasPanel extends JPanel {
 
         animator.render(buffer, Config.CANVAS, Config.CANVAS, Theme.CANVAS_BACKGROUND, dotSize);
         repaint();
-        ticker.start();
+
+        Timer delay = new Timer(500, e -> ticker.start());
+        delay.setRepeats(false);
+        delay.start();
     }
 
     /** Snaps to the finished image, for when a round ends before the morph settles. */
