@@ -13,7 +13,7 @@ import static src.Util.*;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        BufferedImage sourceImage = FixDimensions.resize("./SourceImages/image3.jpg");
+        BufferedImage sourceImage = FixDimensions.resize("./SourceImages/Cat.jpg");
         if (sourceImage == null) {
             throw new IllegalStateException("Could not load source image: ./SourceImages/homer.jpg");
         }
