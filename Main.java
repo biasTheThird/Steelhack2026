@@ -12,7 +12,7 @@ import static src.Util.*;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        BufferedImage sourceImage = FixDimensions.resize("./SourceImages/Cat.jpg");
+        BufferedImage sourceImage = FixDimensions.resize("./SourceImages/ritiii.jpg");
         if (sourceImage == null) {
             throw new IllegalStateException("Could not load source image: ./SourceImages/homer.jpg");
         }
@@ -20,7 +20,7 @@ public class Main {
         DefinePixels sourceLoader = new DefinePixels(sourceImage);
         List<Pixel> sourcePixels = sourceLoader.getPixels();
 
-        BufferedImage targetImage = FixDimensions.resize("./TargetImage/ritiii.jpg");
+        BufferedImage targetImage = FixDimensions.resize("./TargetImage/Cat.jpg");
         if (targetImage == null) {
             throw new IllegalStateException("Could not load target image: ./TargetImage/ritiii.jpg");
         }
