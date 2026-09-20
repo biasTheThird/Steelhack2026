@@ -1,14 +1,13 @@
-import animation.Grapher;
-import animation.Start;
+import animation.*;
 import dataAggregregation.DefinePixels;
 import dataAggregregation.FixDimensions;
 import dataAggregregation.TargetMaskAssigner;
-import src.Pixel;
-import src.Util;
+import src.*;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+
 import static src.Util.*;
 
 public class Main {
@@ -36,6 +35,6 @@ public class Main {
         }
 
         g = new Grapher();
-        Start.start(false);
+        new Animate().start(true);
     }
 }

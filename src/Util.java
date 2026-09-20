@@ -15,9 +15,12 @@ public class Util {
     public static ArrayList<Pixel> pixels = new ArrayList<>();
     //animation
     public static final double maxAveDist = 0.25;
-    public static final double repulsion = 0.1;
-    public static final double targAttraction = 1;
-    public static final double dt = 0.025;
+    public static final double repulsion = 1500;
+    public static final double targAttraction = 6;
+    public static final double velDecay = 0.92;
+    public static final double dtMax = 0.01;
+    public static final double dtStep = dtMax / 100.0;
+    public static double dt = 0;
 
 
     //pre-made colors, used in the Grapher Class

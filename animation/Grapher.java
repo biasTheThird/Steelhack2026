@@ -29,7 +29,7 @@ public class Grapher {
     private Point upperBounds = new Point(400, 400);
     private Dimension winDims = new Dimension(400, 400);
     private int backgroundColor = Util.BLACK;
-    private int pointSize = 1;
+    private int pointSize = 3;
 
 
     /**
@@ -196,8 +196,8 @@ public class Grapher {
      * @param color the hex color of the axis. format: 0xrrggbb
      */
     void setPixelRaw(int x, int y, int color, int size) {
-        for(int i = 1 - size; i <= size - 1; i++) {
-            for(int j = 1 - size; j <= size - 1; j++) {
+        for(int i = 1 - size; i < size - 1; i++) {
+            for(int j = 1 - size; j < size - 1; j++) {
                 if(x+i < 0 || x+i >= pixelW || y+j < 0 || y+j >= pixelH) continue;
                 pixel[(x+i) + (y+j)*pixelW] = color;
             }
