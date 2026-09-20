@@ -34,11 +34,31 @@ Three pieces are rewrites of existing classes rather than new ideas:
 
 ## Build and run
 
+### Windows build executable
+
+Run `Build-Guess-A-Morph.exe` from the repository root. It compiles the game with
+the JDK's `javac`, rebuilds `MorphGuess.jar`, and creates `Guess-A-Morph.exe`.
+Double-click `Guess-A-Morph.exe` to run the compiled project.
+
+If `Guess-A-Morph.exe` is already running and Windows has locked it, the builder
+preserves that process and writes the new launcher as `Guess-A-Morph-built.exe`.
+
+The build executable needs a JDK available through `JAVA_HOME` or `PATH`. The game
+launcher needs Java available through `JAVA_HOME` or `PATH`. Both executables use
+their own folder as the working directory, so image folders resolve correctly even
+when they are started from File Explorer.
+
+To rebuild the build executable itself after changing the native sources, run
+`powershell -ExecutionPolicy Bypass -File windows\build-windows.ps1` on a machine
+with the Visual C++ x64 build tools installed.
+
+### Manual Java build
+
 From the repository root, because the server resolves image folders relative to the
 working directory:
 
 ```
-javac -d out $(find . -path ./out -prune -o -name '*.java' -print)
+javac -d out MorphGuess.java game/*.java morph/*.java net/*.java ui/*.java
 java -cp out MorphGuess
 ```
 
@@ -116,16 +136,14 @@ being first. The drawer gets 20 per person who got it, so picking something
 impossible is bad for them. Two letters of the answer are revealed as the clock runs
 down, never more than two thirds of it.
 
-## Not compiled
+## Build notes
 
-I wrote this without a JDK available, so none of it has been through `javac` and
-none of it has been run. Expect to spend a few minutes on compile errors before it
-starts. The places I'd look first:
+The Windows build compiles all game sources and packages 54 class files into the
+runnable JAR. If a client and server cannot communicate, check these first:
 
 - The protocol uses Java serialization, so server and clients must be built from the
   same source. A stale client against a fresh server fails at `readObject`.
 - `MorphBuilder.bestParallel` allocates a handful of `Callable`s per source pixel.
   It should be fine next to the scoring work, but if loading is slower than expected,
   raising `PARALLEL_THRESHOLD` or dropping to a serial scan is the first thing to try.
-- The Swing layout is fixed-proportion. It has a 880x600 minimum and I have not seen
-  it at any size.
+- The Swing layout is fixed-proportion and has an 880x600 minimum.

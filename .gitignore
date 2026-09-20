@@ -6,3 +6,6 @@
 out/production/Steelhack2026/javafiles.txt
 out/target-assignment-test.png
 out/test-classes/
+build/
+MorphGuess.jar.tmp
+Guess-A-Morph.exe.tmp
