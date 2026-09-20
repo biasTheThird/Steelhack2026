@@ -188,9 +188,28 @@ public final class ImageLibrary {
     }
 
     public synchronized File randomSource() {
+        return randomSource(null);
+    }
+
+    public synchronized File randomSource(String avoidPerson) {
         if (sources.isEmpty()) {
             return null;
         }
+
+        String avoid = GuessChecker.normalise(avoidPerson);
+        if (!avoid.isEmpty()) {
+            List<File> allowed = new ArrayList<>();
+            for (File file : sources) {
+                String name = displayNameOf(file);
+                if (name == null || !GuessChecker.normalise(name).equals(avoid)) {
+                    allowed.add(file);
+                }
+            }
+            if (!allowed.isEmpty()) {
+                return allowed.get(random.nextInt(allowed.size()));
+            }
+        }
+
         return sources.get(random.nextInt(sources.size()));
     }
 

@@ -325,7 +325,7 @@ public final class RoundEngine implements Runnable {
 
     /** The expensive part: pairing every source pixel with a target pixel. */
     private MorphData buildMorph(ImageLibrary.Option option) {
-        File sourceFile = library.randomSource();
+        File sourceFile = library.randomSource(option.person);
         if (sourceFile == null) {
             announceLobby("No source images to morph from.");
             return null;
